@@ -3,7 +3,6 @@
 This repository is dedicated to students of K.N.Toosi learning how to commit and contribute. 
 
 ## How to start
-----------
 
 1. Clone this repositrory
 2. Add, write, edit your project in the folder downloaded.

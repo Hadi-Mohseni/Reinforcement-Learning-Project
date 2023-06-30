@@ -1,2 +1,1 @@
-# Reinforcement-Learning-Project
-Reinforcement Learning final project
+# Reinforcement Learning final project

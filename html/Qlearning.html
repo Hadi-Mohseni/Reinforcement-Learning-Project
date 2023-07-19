@@ -1,0 +1,296 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Qlearning</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-07-18"><meta name="DC.source" content="Qlearning.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Section for setting up the game plane and displaying it</a></li><li><a href="#3">Section for defining the goal location and initializing states</a></li><li><a href="#4">Section for defining all possible actions and creating state-action pairs</a></li><li><a href="#5">Section for initializing Q-values and other parameters</a></li><li><a href="#6">Main loop for running episodes and updating Q-values using Q-learning</a></li><li><a href="#7">Section for generating an episode based on the learned policy</a></li></ul></div><pre class="codeinput"><span class="comment">% Clear the command window, clear workspace variables, and close all figures</span>
+clc;
+clear;
+close <span class="string">all</span>;
+</pre><h2 id="2">Section for setting up the game plane and displaying it</h2><pre class="codeinput">game_plane_size = 101; <span class="comment">% Define the size of the game plane</span>
+Plane = ones(1, game_plane_size); <span class="comment">% Initialize the game plane with all free spaces (1: free, 0: barrier)</span>
+imagesc(Plane); <span class="comment">% Display the game plane as an image</span>
+</pre><img vspace="5" hspace="5" src="Qlearning_01.png" alt=""> <h2 id="3">Section for defining the goal location and initializing states</h2><pre class="codeinput">Goal = [1, 0]; <span class="comment">% Define the coordinates of the goal location</span>
+
+<span class="comment">% Find all states (positions) where the game plane is free</span>
+[R, C] = find(Plane == 1);
+AllStates = [R' C' - 1]; <span class="comment">% Store the coordinates of all free states</span>
+nStates = size(AllStates, 1); <span class="comment">% Get the total number of free states</span>
+</pre><h2 id="4">Section for defining all possible actions and creating state-action pairs</h2><p>Define the possible actions as position offsets (AllActions matrix)</p><pre class="codeinput">AllActions = [1:10; 11:20; 21:30; 31:40]'; <span class="comment">% Each row represents a set of actions for each state</span>
+
+<span class="comment">% Calculate the total number of possible actions</span>
+nActions = size(AllActions, 1) * size(AllActions, 2);
+
+<span class="comment">% Create a matrix (AllStateActionPairs) to store all state-action pairs</span>
+AllStateActionPairs = zeros(nStates * nActions, 3);
+
+<span class="comment">% Populate the AllStateActionPairs matrix with state-action pairs</span>
+<span class="keyword">for</span> i = 1:nStates
+    <span class="keyword">for</span> j = 1:size(AllActions, 2)
+        <span class="comment">% Repeat the current state (coordinates) for each action in the current set</span>
+        <span class="comment">% and append the corresponding action to create the state-action pair</span>
+        AllStateActionPairs(1 + size(AllActions, 1) * (4 * (i - 1) + j - 1) : size(AllActions, 1) * (4 * (i - 1) + j), :) = [repmat((AllStates(i, :)), size(AllActions, 1), 1), AllActions(1:size(AllActions, 1), j)];
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2 id="5">Section for initializing Q-values and other parameters</h2><pre class="codeinput">nAllStateActionPairs = size(AllStateActionPairs, 1); <span class="comment">% Get the total number of state-action pairs</span>
+
+Counter = zeros(nAllStateActionPairs, 1); <span class="comment">% Initialize a counter for each state-action pair</span>
+Q = zeros(nAllStateActionPairs, 1); <span class="comment">% Initialize Q-values for each state-action pair</span>
+
+gamma = 0.99; <span class="comment">% Set the discount factor for future rewards</span>
+nEpisode = 10; <span class="comment">% Define the number of episodes for training</span>
+epsilon = 0.1; <span class="comment">% Define the exploration rate for epsilon-greedy policy</span>
+
+<span class="comment">% Initialize the policy randomly by assigning random actions to each state</span>
+Policy = randi(nActions, nStates, 1);
+
+alpha = 0.1; <span class="comment">% Learning rate for updating Q-values</span>
+</pre><h2 id="6">Main loop for running episodes and updating Q-values using Q-learning</h2><pre class="codeinput"><span class="keyword">for</span> e = 1:nEpisode
+    <span class="comment">% Set the initial state for the current episode</span>
+    State = [1, 100];
+
+    <span class="comment">% Exploration-exploitation loop within each episode</span>
+    <span class="keyword">while</span> true
+        <span class="comment">% Find the index of the current state in the AllStates array</span>
+        indexOfState = find(ismember(AllStates, State, <span class="string">'row'</span>));
+
+        <span class="comment">% Choose an action based on the policy with epsilon-greedy exploration</span>
+        randomNum = rand;
+        <span class="keyword">if</span> randomNum &lt; ((1 - epsilon) + (epsilon / nActions))
+            At = Policy(indexOfState); <span class="comment">% Exploitation: choose action from the policy</span>
+        <span class="keyword">else</span>
+            At = randi(nActions); <span class="comment">% Exploration: choose a random action</span>
+        <span class="keyword">end</span>
+
+        <span class="comment">% Get the new state and the immediate reward based on the selected action</span>
+        [NewState, Reward] = Environment(AllStates, State, At, Goal);
+
+        <span class="comment">% Check if the agent has reached the goal state, then exit the loop</span>
+        <span class="keyword">if</span> ismember(NewState, Goal, <span class="string">'row'</span>)
+            <span class="keyword">break</span>;
+        <span class="keyword">end</span>
+
+        <span class="comment">% Find the indices of the current state-action pair in the AllStateActionPairs matrix</span>
+        indexInPairs = find(ismember(AllStateActionPairs, [State, At], <span class="string">'row'</span>));
+
+        <span class="comment">% Find the indices of the next state-action pairs (for the next time step)</span>
+        indexOfNextStateInPairs = find(ismember(AllStateActionPairs(:, [1, 2]), NewState, <span class="string">'row'</span>));
+
+        <span class="comment">% Update the Q-value for the current state-action pair using the Q-learning formula</span>
+        Q(indexInPairs) = Q(indexInPairs) + alpha * (Reward + gamma * max(Q(indexOfNextStateInPairs)) - Q(indexInPairs));
+
+        <span class="comment">% Transition to the new state for the next time step</span>
+        State = NewState;
+
+        <span class="comment">% Update the policy using the current Q-values</span>
+        Policy = PolicyImprovementUsingQ(Q, nActions);
+
+        <span class="comment">% Check if the agent has reached the goal state, then exit the loop</span>
+        <span class="keyword">if</span> ismember(State, Goal, <span class="string">'row'</span>)
+            <span class="keyword">break</span>;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% Display the current episode number</span>
+    disp([<span class="string">'Episode: '</span>, num2str(e)]);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Episode: 1
+Episode: 2
+Episode: 3
+Episode: 4
+Episode: 5
+Episode: 6
+Episode: 7
+Episode: 8
+Episode: 9
+Episode: 10
+</pre><h2 id="7">Section for generating an episode based on the learned policy</h2><p>Set the initial state for generating an episode</p><pre class="codeinput">initialState = [1, 100];
+
+display = 1; <span class="comment">% Set to 1 for displaying the episode, otherwise set to 0</span>
+epsilon = 0; <span class="comment">% Exploration rate set to 0 for exploiting the learned policy</span>
+qPrediction = 0; <span class="comment">% Set to 0 as it is not used in this case</span>
+
+<span class="comment">% Generate an episode based on the learned policy</span>
+[VisitedStates, Actions, VisitedRewards] = GenerateEpisode(Plane, AllStates, AllActions, Policy, initialState, Goal, epsilon, display, qPrediction);
+</pre><img vspace="5" hspace="5" src="Qlearning_02.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Clear the command window, clear workspace variables, and close all figures
+clc;
+clear;
+close all;
+
+%% Section for setting up the game plane and displaying it
+game_plane_size = 101; % Define the size of the game plane
+Plane = ones(1, game_plane_size); % Initialize the game plane with all free spaces (1: free, 0: barrier)
+imagesc(Plane); % Display the game plane as an image
+
+%% Section for defining the goal location and initializing states
+Goal = [1, 0]; % Define the coordinates of the goal location
+
+% Find all states (positions) where the game plane is free
+[R, C] = find(Plane == 1);
+AllStates = [R' C' - 1]; % Store the coordinates of all free states
+nStates = size(AllStates, 1); % Get the total number of free states
+
+%% Section for defining all possible actions and creating state-action pairs
+% Define the possible actions as position offsets (AllActions matrix)
+AllActions = [1:10; 11:20; 21:30; 31:40]'; % Each row represents a set of actions for each state
+
+% Calculate the total number of possible actions
+nActions = size(AllActions, 1) * size(AllActions, 2);
+
+% Create a matrix (AllStateActionPairs) to store all state-action pairs
+AllStateActionPairs = zeros(nStates * nActions, 3);
+
+% Populate the AllStateActionPairs matrix with state-action pairs
+for i = 1:nStates
+    for j = 1:size(AllActions, 2)
+        % Repeat the current state (coordinates) for each action in the current set
+        % and append the corresponding action to create the state-action pair
+        AllStateActionPairs(1 + size(AllActions, 1) * (4 * (i - 1) + j - 1) : size(AllActions, 1) * (4 * (i - 1) + j), :) = [repmat((AllStates(i, :)), size(AllActions, 1), 1), AllActions(1:size(AllActions, 1), j)];
+    end
+end
+
+%% Section for initializing Q-values and other parameters
+nAllStateActionPairs = size(AllStateActionPairs, 1); % Get the total number of state-action pairs
+
+Counter = zeros(nAllStateActionPairs, 1); % Initialize a counter for each state-action pair
+Q = zeros(nAllStateActionPairs, 1); % Initialize Q-values for each state-action pair
+
+gamma = 0.99; % Set the discount factor for future rewards
+nEpisode = 10; % Define the number of episodes for training
+epsilon = 0.1; % Define the exploration rate for epsilon-greedy policy
+
+% Initialize the policy randomly by assigning random actions to each state
+Policy = randi(nActions, nStates, 1);
+
+alpha = 0.1; % Learning rate for updating Q-values
+
+%% Main loop for running episodes and updating Q-values using Q-learning
+for e = 1:nEpisode
+    % Set the initial state for the current episode
+    State = [1, 100];
+
+    % Exploration-exploitation loop within each episode
+    while true
+        % Find the index of the current state in the AllStates array
+        indexOfState = find(ismember(AllStates, State, 'row'));
+
+        % Choose an action based on the policy with epsilon-greedy exploration
+        randomNum = rand;
+        if randomNum < ((1 - epsilon) + (epsilon / nActions))
+            At = Policy(indexOfState); % Exploitation: choose action from the policy
+        else
+            At = randi(nActions); % Exploration: choose a random action
+        end
+
+        % Get the new state and the immediate reward based on the selected action
+        [NewState, Reward] = Environment(AllStates, State, At, Goal);
+
+        % Check if the agent has reached the goal state, then exit the loop
+        if ismember(NewState, Goal, 'row')
+            break;
+        end
+
+        % Find the indices of the current state-action pair in the AllStateActionPairs matrix
+        indexInPairs = find(ismember(AllStateActionPairs, [State, At], 'row'));
+
+        % Find the indices of the next state-action pairs (for the next time step)
+        indexOfNextStateInPairs = find(ismember(AllStateActionPairs(:, [1, 2]), NewState, 'row'));
+
+        % Update the Q-value for the current state-action pair using the Q-learning formula
+        Q(indexInPairs) = Q(indexInPairs) + alpha * (Reward + gamma * max(Q(indexOfNextStateInPairs)) - Q(indexInPairs));
+
+        % Transition to the new state for the next time step
+        State = NewState;
+
+        % Update the policy using the current Q-values
+        Policy = PolicyImprovementUsingQ(Q, nActions);
+
+        % Check if the agent has reached the goal state, then exit the loop
+        if ismember(State, Goal, 'row')
+            break;
+        end
+    end
+
+    % Display the current episode number
+    disp(['Episode: ', num2str(e)]);
+end
+
+%% Section for generating an episode based on the learned policy
+% Set the initial state for generating an episode
+initialState = [1, 100];
+
+display = 1; % Set to 1 for displaying the episode, otherwise set to 0
+epsilon = 0; % Exploration rate set to 0 for exploiting the learned policy
+qPrediction = 0; % Set to 0 as it is not used in this case
+
+% Generate an episode based on the learned policy
+[VisitedStates, Actions, VisitedRewards] = GenerateEpisode(Plane, AllStates, AllActions, Policy, initialState, Goal, epsilon, display, qPrediction);
+
+##### SOURCE END #####
+--></body></html>

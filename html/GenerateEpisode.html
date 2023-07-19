@@ -1,0 +1,275 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>GenerateEpisode</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-07-18"><meta name="DC.source" content="GenerateEpisode.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% Generate an episode (sequence of states, actions, and rewards) for a given</span>
+<span class="comment">% plane navigation problem using a given policy and environment.</span>
+<span class="comment">% Inputs:</span>
+<span class="comment">% - Plane: The 2D plane represented as a matrix, where 1 indicates a free cell</span>
+<span class="comment">%          and 0 indicates a barrier.</span>
+<span class="comment">% - AllStates: Matrix containing all possible states (coordinates) in the plane.</span>
+<span class="comment">% - AllActions: Matrix containing all possible actions.</span>
+<span class="comment">% - Policy: A vector containing the chosen action for each state based on the policy.</span>
+<span class="comment">% - initialStateActionPair: A pair containing the initial state [x, y] and initial</span>
+<span class="comment">%                            action [dx, dy] for the episode.</span>
+<span class="comment">% - Goal: The target/goal state that the agent aims to reach.</span>
+<span class="comment">% - epsilon: Exploration parameter used for epsilon-greedy action selection.</span>
+<span class="comment">% - display: A boolean flag to determine whether to visualize the episode during generation.</span>
+<span class="comment">% - qPrediction: A boolean flag indicating whether the action-value function should</span>
+<span class="comment">%                be predicted using the given policy (1) or not (0).</span>
+
+<span class="comment">% Outputs:</span>
+<span class="comment">% - States: A matrix containing the sequence of states visited in the episode.</span>
+<span class="comment">% - Actions: A matrix containing the sequence of actions taken at each time step.</span>
+<span class="comment">% - Rewards: A matrix containing the sequence of rewards received at each time step.</span>
+
+
+<span class="keyword">function</span> [States, Actions, Rewards] = GenerateEpisode(Plane, <span class="keyword">...</span>
+    AllStates, AllActions, Policy, initialStateActionPair, Goal, <span class="keyword">...</span>
+    epsilon, display, qPrediction)
+
+    <span class="comment">% Generate an episode using the given policy from the initial state.</span>
+    <span class="comment">% The episode consists of states, actions, and rewards encountered during the simulation.</span>
+
+    FinalTimeStep = 1e6; <span class="comment">% Maximum number of time steps allowed in the episode.</span>
+    States = zeros(FinalTimeStep, 2); <span class="comment">% Array to store states at each time step.</span>
+    Actions = zeros(FinalTimeStep, 1); <span class="comment">% Array to store actions at each time step.</span>
+    Rewards = zeros(FinalTimeStep, 1); <span class="comment">% Array to store rewards at each time step.</span>
+
+    isFinalState = 0; <span class="comment">% Flag to indicate if the final state (goal state) is reached.</span>
+    t = 1; <span class="comment">% Time step counter.</span>
+
+    States(t, :) = initialStateActionPair(1, [1 2]); <span class="comment">% Set the initial state in the episode.</span>
+
+    <span class="keyword">while</span> 1
+        <span class="keyword">if</span> display
+            <span class="comment">% Visualization (optional): Display the current state, goal, and plane with obstacles.</span>
+            Plane2 = Plane; <span class="comment">% 1: free, 0: barrier</span>
+            Plane2(States(t, 1), States(t, 2)) = 3; <span class="comment">% Mark the current state as '3' for visualization.</span>
+            Plane2(Goal(1), Goal(2) + 1) = 2; <span class="comment">% Mark the goal state as '2' for visualization.</span>
+            imagesc(Plane2);
+            title([<span class="string">'Time Step ('</span> num2str(t) <span class="string">')'</span>], <span class="string">'fontsize'</span>, 20);
+            pause(0.1);
+        <span class="keyword">end</span>
+
+        <span class="comment">% Get the index of the current state in the list of all possible states.</span>
+        indexOfState = find(ismember(AllStates, States(t, :), <span class="string">'row'</span>));
+
+        <span class="comment">% Determine the action to take based on the epsilon-greedy policy.</span>
+        <span class="keyword">if</span> rand &gt; epsilon <span class="comment">% Choose the action based on the learned policy with probability 1 - epsilon.</span>
+            At = Policy(indexOfState); <span class="comment">% Select the action from the learned policy.</span>
+        <span class="keyword">else</span>
+            At = randi(size(AllActions, 1)); <span class="comment">% Choose a random action with probability epsilon.</span>
+        <span class="keyword">end</span>
+
+        <span class="comment">% If qPrediction is enabled and it's the first time step, set the initial action.</span>
+        <span class="keyword">if</span> qPrediction == 1 &amp;&amp; t == 1
+            Actions(t, :) = initialStateActionPair(1, [3 4]);
+        <span class="keyword">else</span>
+            Actions(t, :) = At; <span class="comment">% Record the action taken at the current time step.</span>
+        <span class="keyword">end</span>
+
+        <span class="comment">% Simulate the environment based on the current state and action.</span>
+        <span class="comment">% Update the next state and reward based on the environment dynamics.</span>
+        [States(t + 1, :), Rewards(t + 1)] = Environment(AllStates, States(t, :), Actions(t, :), Goal);
+
+        <span class="comment">% Check if the next state is the goal state (reached the final state).</span>
+        <span class="keyword">if</span> ismember(States(t + 1, :), Goal, <span class="string">'row'</span>)
+            isFinalState = 1; <span class="comment">% Set the flag to indicate reaching the final state.</span>
+        <span class="keyword">end</span>
+
+        <span class="keyword">if</span> isFinalState == 1
+            <span class="keyword">if</span> display
+                <span class="comment">% Visualization (optional): Display the final state if goal reached.</span>
+                Plane2 = Plane;
+                Plane2(States(t + 1, 1), States(t + 1, 2) + 1) = 3;
+                Plane2(Goal(1), Goal(2) + 1) = 2;
+                imagesc(Plane2);
+                title([<span class="string">'Time Step ('</span> num2str(t) <span class="string">')'</span>], <span class="string">'fontsize'</span>, 20);
+                pause(0.1);
+            <span class="keyword">end</span>
+
+            <span class="keyword">break</span>; <span class="comment">% Exit the episode generation loop when the goal is reached.</span>
+        <span class="keyword">end</span>
+
+        t = t + 1; <span class="comment">% Increment the time step.</span>
+    <span class="keyword">end</span>
+
+    <span class="comment">% Remove excess zeros from the arrays to get the actual episode data.</span>
+    States = States(1:t + 1, :);
+    Actions = Actions(1:t + 1, :);
+    Rewards = Rewards(1:t + 1, :);
+
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in GenerateEpisode (line 38)
+    States(t, :) = initialStateActionPair(1, [1 2]); % Set the initial state in the episode.
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Generate an episode (sequence of states, actions, and rewards) for a given 
+% plane navigation problem using a given policy and environment.
+% Inputs:
+% - Plane: The 2D plane represented as a matrix, where 1 indicates a free cell
+%          and 0 indicates a barrier.
+% - AllStates: Matrix containing all possible states (coordinates) in the plane.
+% - AllActions: Matrix containing all possible actions.
+% - Policy: A vector containing the chosen action for each state based on the policy.
+% - initialStateActionPair: A pair containing the initial state [x, y] and initial
+%                            action [dx, dy] for the episode.
+% - Goal: The target/goal state that the agent aims to reach.
+% - epsilon: Exploration parameter used for epsilon-greedy action selection.
+% - display: A boolean flag to determine whether to visualize the episode during generation.
+% - qPrediction: A boolean flag indicating whether the action-value function should
+%                be predicted using the given policy (1) or not (0).
+
+% Outputs:
+% - States: A matrix containing the sequence of states visited in the episode.
+% - Actions: A matrix containing the sequence of actions taken at each time step.
+% - Rewards: A matrix containing the sequence of rewards received at each time step.
+
+
+function [States, Actions, Rewards] = GenerateEpisode(Plane, ...
+    AllStates, AllActions, Policy, initialStateActionPair, Goal, ...
+    epsilon, display, qPrediction)
+    
+    % Generate an episode using the given policy from the initial state.
+    % The episode consists of states, actions, and rewards encountered during the simulation.
+
+    FinalTimeStep = 1e6; % Maximum number of time steps allowed in the episode.
+    States = zeros(FinalTimeStep, 2); % Array to store states at each time step.
+    Actions = zeros(FinalTimeStep, 1); % Array to store actions at each time step.
+    Rewards = zeros(FinalTimeStep, 1); % Array to store rewards at each time step.
+
+    isFinalState = 0; % Flag to indicate if the final state (goal state) is reached.
+    t = 1; % Time step counter.
+
+    States(t, :) = initialStateActionPair(1, [1 2]); % Set the initial state in the episode.
+
+    while 1
+        if display
+            % Visualization (optional): Display the current state, goal, and plane with obstacles.
+            Plane2 = Plane; % 1: free, 0: barrier
+            Plane2(States(t, 1), States(t, 2)) = 3; % Mark the current state as '3' for visualization.
+            Plane2(Goal(1), Goal(2) + 1) = 2; % Mark the goal state as '2' for visualization.
+            imagesc(Plane2);
+            title(['Time Step (' num2str(t) ')'], 'fontsize', 20);
+            pause(0.1);
+        end
+
+        % Get the index of the current state in the list of all possible states.
+        indexOfState = find(ismember(AllStates, States(t, :), 'row'));
+
+        % Determine the action to take based on the epsilon-greedy policy.
+        if rand > epsilon % Choose the action based on the learned policy with probability 1 - epsilon.
+            At = Policy(indexOfState); % Select the action from the learned policy.
+        else
+            At = randi(size(AllActions, 1)); % Choose a random action with probability epsilon.
+        end
+
+        % If qPrediction is enabled and it's the first time step, set the initial action.
+        if qPrediction == 1 && t == 1
+            Actions(t, :) = initialStateActionPair(1, [3 4]);
+        else
+            Actions(t, :) = At; % Record the action taken at the current time step.
+        end
+
+        % Simulate the environment based on the current state and action.
+        % Update the next state and reward based on the environment dynamics.
+        [States(t + 1, :), Rewards(t + 1)] = Environment(AllStates, States(t, :), Actions(t, :), Goal);
+
+        % Check if the next state is the goal state (reached the final state).
+        if ismember(States(t + 1, :), Goal, 'row')
+            isFinalState = 1; % Set the flag to indicate reaching the final state.
+        end
+
+        if isFinalState == 1
+            if display
+                % Visualization (optional): Display the final state if goal reached.
+                Plane2 = Plane;
+                Plane2(States(t + 1, 1), States(t + 1, 2) + 1) = 3;
+                Plane2(Goal(1), Goal(2) + 1) = 2;
+                imagesc(Plane2);
+                title(['Time Step (' num2str(t) ')'], 'fontsize', 20);
+                pause(0.1);
+            end
+
+            break; % Exit the episode generation loop when the goal is reached.
+        end
+
+        t = t + 1; % Increment the time step.
+    end
+
+    % Remove excess zeros from the arrays to get the actual episode data.
+    States = States(1:t + 1, :);
+    Actions = Actions(1:t + 1, :);
+    Rewards = Rewards(1:t + 1, :);
+
+end
+##### SOURCE END #####
+--></body></html>

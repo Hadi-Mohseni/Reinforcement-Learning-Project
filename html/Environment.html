@@ -1,0 +1,236 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Environment</title><meta name="generator" content="MATLAB 9.12"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2023-07-18"><meta name="DC.source" content="Environment.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">% Environment - Golf Game Environment Simulator</span>
+<span class="comment">%   [NewState, Reward] = Environment(AllStates, State, Action, Goal)</span>
+<span class="comment">%</span>
+<span class="comment">%   This function simulates the environment for a basic golf game. It takes the current</span>
+<span class="comment">%   state, the selected action (representing the golf club and power used), and the goal</span>
+<span class="comment">%   state. The function calculates the new state of the ball after taking the action</span>
+<span class="comment">%   and computes the reward based on the success of the shot.</span>
+<span class="comment">%</span>
+<span class="comment">%   Inputs:</span>
+<span class="comment">%       AllStates: An array containing all the possible states of the ball.</span>
+<span class="comment">%       State: A 2-element array representing the current state of the ball [flag, position].</span>
+<span class="comment">%       Action: An integer representing the selected action (golf club and power).</span>
+<span class="comment">%       Goal: An array representing the goal state of the ball.</span>
+<span class="comment">%</span>
+<span class="comment">%   Outputs:</span>
+<span class="comment">%       NewState: A 2-element array representing the new state of the ball after the action [flag, new_position].</span>
+<span class="comment">%       Reward: A scalar value representing the reward earned based on the success of the shot.</span>
+<span class="comment">%</span>
+<span class="keyword">function</span> [NewState, Reward] = Environment(AllStates, State, Action, Goal)
+
+<span class="comment">% Extract the current position of the ball from the State array</span>
+old_state = State(2);
+
+<span class="comment">% Extract the power of the action (selected golf club) and its type</span>
+power_of_action = mod(Action, 10) * 0.1;
+<span class="keyword">if</span> (power_of_action == 0)
+    power_of_action = 1;
+<span class="keyword">end</span>
+type_of_action = floor((Action - 1) / 10) + 1;
+
+<span class="comment">% Assign default distances and precision based on the type of action (golf club)</span>
+<span class="keyword">switch</span> (type_of_action)
+    <span class="keyword">case</span> 1
+        <span class="comment">% Putter selected</span>
+        default_distance = 3;
+        precision = normrnd(1, 0); <span class="comment">% Mean of 1, no precision randomness.</span>
+
+    <span class="keyword">case</span> 2
+        <span class="comment">% Hybrids selected</span>
+        default_distance = 6;
+        precision = normrnd(1, 0.05); <span class="comment">% Mean of 1, with 0.05 standard deviation.</span>
+
+    <span class="keyword">case</span> 3
+        <span class="comment">% Irons selected</span>
+        default_distance = 12;
+        precision = normrnd(1, 0.15); <span class="comment">% Mean of 1, with 0.15 standard deviation.</span>
+
+    <span class="keyword">case</span> 4
+        <span class="comment">% Woods selected</span>
+        default_distance = 18;
+        precision = normrnd(1, 0.25); <span class="comment">% Mean of 1, with 0.25 standard deviation.</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Generate a random wind disturbance using normal distribution with mean 0 and standard deviation of 3.</span>
+wind_disturbance = normrnd(0, 3);
+
+<span class="comment">% Calculate the new position of the ball after taking the action and considering the wind disturbance.</span>
+d = ceil(power_of_action * default_distance * precision) + round((1 - precision) * wind_disturbance);
+new_state = abs(old_state - d);
+
+<span class="comment">% Set the NewState array to [1 new_state], where 1 represents the flag, and new_state is the updated position of the ball.</span>
+NewState = [1 new_state];
+
+<span class="comment">% Check if the NewState is one of the possible states in AllStates.</span>
+<span class="keyword">if</span> find(ismember(AllStates, NewState, <span class="string">'row'</span>))
+    <span class="comment">% If the NewState is one of the possible states, check if it is the goal state.</span>
+    <span class="keyword">if</span> ismember(NewState, Goal, <span class="string">'row'</span>)
+        <span class="comment">% If NewState is the goal state, assign a positive reward of +10.</span>
+        Reward = +10;
+    <span class="keyword">else</span>
+        <span class="comment">% If NewState is not the goal state, assign a negative reward of -5.</span>
+        Reward = -5;
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    <span class="comment">% If NewState is not one of the possible states, assign a negative reward of -10.</span>
+    Reward = -10;
+    <span class="comment">% Set NewState to [1 100] representing an out-of-bounds state.</span>
+    NewState = [1 100];
+<span class="keyword">end</span>
+</pre><pre class="codeoutput error">Not enough input arguments.
+
+Error in Environment (line 22)
+old_state = State(2);
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2022a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Environment - Golf Game Environment Simulator
+%   [NewState, Reward] = Environment(AllStates, State, Action, Goal)
+%
+%   This function simulates the environment for a basic golf game. It takes the current
+%   state, the selected action (representing the golf club and power used), and the goal
+%   state. The function calculates the new state of the ball after taking the action
+%   and computes the reward based on the success of the shot.
+%
+%   Inputs:
+%       AllStates: An array containing all the possible states of the ball.
+%       State: A 2-element array representing the current state of the ball [flag, position].
+%       Action: An integer representing the selected action (golf club and power).
+%       Goal: An array representing the goal state of the ball.
+%
+%   Outputs:
+%       NewState: A 2-element array representing the new state of the ball after the action [flag, new_position].
+%       Reward: A scalar value representing the reward earned based on the success of the shot.
+%
+function [NewState, Reward] = Environment(AllStates, State, Action, Goal)
+
+% Extract the current position of the ball from the State array
+old_state = State(2);
+
+% Extract the power of the action (selected golf club) and its type
+power_of_action = mod(Action, 10) * 0.1;
+if (power_of_action == 0)
+    power_of_action = 1; 
+end
+type_of_action = floor((Action - 1) / 10) + 1;
+
+% Assign default distances and precision based on the type of action (golf club)
+switch (type_of_action)
+    case 1
+        % Putter selected
+        default_distance = 3;
+        precision = normrnd(1, 0); % Mean of 1, no precision randomness.
+
+    case 2
+        % Hybrids selected
+        default_distance = 6;
+        precision = normrnd(1, 0.05); % Mean of 1, with 0.05 standard deviation.
+
+    case 3
+        % Irons selected
+        default_distance = 12;
+        precision = normrnd(1, 0.15); % Mean of 1, with 0.15 standard deviation.
+
+    case 4
+        % Woods selected
+        default_distance = 18;
+        precision = normrnd(1, 0.25); % Mean of 1, with 0.25 standard deviation.
+end
+
+% Generate a random wind disturbance using normal distribution with mean 0 and standard deviation of 3.
+wind_disturbance = normrnd(0, 3);
+
+% Calculate the new position of the ball after taking the action and considering the wind disturbance.
+d = ceil(power_of_action * default_distance * precision) + round((1 - precision) * wind_disturbance);
+new_state = abs(old_state - d);
+
+% Set the NewState array to [1 new_state], where 1 represents the flag, and new_state is the updated position of the ball.
+NewState = [1 new_state];
+
+% Check if the NewState is one of the possible states in AllStates.
+if find(ismember(AllStates, NewState, 'row'))
+    % If the NewState is one of the possible states, check if it is the goal state.
+    if ismember(NewState, Goal, 'row')
+        % If NewState is the goal state, assign a positive reward of +10.
+        Reward = +10;
+    else
+        % If NewState is not the goal state, assign a negative reward of -5.
+        Reward = -5;
+    end
+else
+    % If NewState is not one of the possible states, assign a negative reward of -10.
+    Reward = -10;
+    % Set NewState to [1 100] representing an out-of-bounds state.
+    NewState = [1 100];
+end
+
+##### SOURCE END #####
+--></body></html>

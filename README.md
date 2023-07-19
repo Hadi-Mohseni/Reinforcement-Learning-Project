@@ -1,13 +1,3 @@
 # Reinforcement Learning final project
-
-This repository is dedicated to students of K.N.Toosi learning how to commit and contribute. 
-
-## How to start
-
-1. Clone this repositrory
-2. Add, write, edit your project in the folder downloaded.
-3. Stage you files changes by `git add .`
-3. Save and commit your project using `git commit -m "your message"`
-4. Push your project
-5. Make a pull request
-6. Done!
+This repositrory represent my reinforcement learning final project in this course. This project is about learning an agent in a golf field to win the game in some sophisticated situation. In this document the results about this problem using Q-learning and SARSA algorithms are described. 
+ 
